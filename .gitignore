@@ -1,0 +1,18 @@
+# Database credentials
+config.php
+api/config.php
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/

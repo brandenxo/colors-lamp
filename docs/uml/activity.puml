@@ -1,0 +1,73 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 15
+skinparam activityBackgroundColor #F3F4F6
+skinparam activityBorderColor #374151
+skinparam ArrowColor #374151
+skinparam activityDiamondBackgroundColor #FFFFFF
+skinparam activityDiamondBorderColor #374151
+title COLORS - Activity Diagram
+
+start
+:Browser opens index.html;
+repeat
+  :User enters username and password;
+  :doLogin() sends JSON to Login.php;
+  :PHP queries Users using\nLogin = ? AND Password = ?;
+  if (Matching user?) then (yes)
+    :PHP returns id, firstName, lastName\nand an empty error;
+  else (no)
+    :PHP returns id = 0\nand error = "No Records Found";
+  endif
+  :Browser reads response.id into userId;
+  if (userId < 1?) then (yes)
+    :Show "User/Password combination incorrect";
+  endif
+repeat while (userId < 1?) is (retry) not (logged in)
+
+:saveCookie() stores name and ID\nwith a 20-minute expiry;
+:Navigate to color.html;\nreadCookie() loads browser user state;
+if (userId < 0 after readCookie()?) then (yes)
+  :Redirect to index.html;
+  stop
+endif
+
+repeat
+  :User chooses Add Color,\nSearch Color, or Log Out;
+  if (Add Color?) then (yes)
+    :Browser sends color and userId\nto AddColor.php;
+    :PHP inserts Colors(UserId, Name)\nand returns JSON with error = "";
+    :Browser shows "Color has been added";
+    note right
+      On HTTP 200, the browser shows this
+      message without checking response.error.
+    end note
+  elseif (Search Color?) then (yes)
+    :Browser sends search and userId\nto SearchColors.php;
+    :PHP queries Colors using\nName LIKE %search% AND UserID = userId;
+    if (Any matching rows?) then (yes)
+      :PHP returns results[] of color names\nand an empty error;
+      :Browser shows retrieval message\nand displays the returned names;
+    else (no)
+      :PHP returns error = "No Records Found"\nwithout a results array;
+      :Browser shows retrieval message,\nthen results.length causes a JavaScript error;
+      note right
+        Current behavior: no friendly empty-result
+        message; an earlier displayed list may remain.
+      end note
+    endif
+  else (Log Out)
+    :doLogout() resets user state\nand expires the browser cookie;
+  endif
+repeat while (User chose Log Out?) is (no) not (yes)
+:Redirect to index.html;
+stop
+
+legend bottom
+  Scope: login followed by repeated color actions and logout.
+  API paths assume an available database and completed HTTP 200 responses.
+  Network, SQL, and configuration failures are outside this activity's scope.
+endlegend
+@enduml

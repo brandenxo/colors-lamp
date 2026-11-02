@@ -1,0 +1,79 @@
+@startuml
+!pragma layout smetana
+top to bottom direction
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 15
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #F3F4F6
+skinparam classBorderColor #374151
+skinparam ArrowColor #374151
+hide empty members
+title COLORS - Class Diagram
+
+class "BrowserClient\n(public/js/code.js)" as Client <<module>> {
+  userId : integer
+  firstName : string
+  lastName : string
+  urlBase : string
+  extension : string
+  --
+  doLogin()
+  doLogout()
+  saveCookie()
+  readCookie()
+  addColor()
+  searchColor()
+}
+
+package "PHP API scripts" {
+  class "Login.php" as Login <<script>> {
+    getRequestInfo()
+    sendResultInfoAsJson(obj)
+    returnWithError(err)
+    returnWithInfo(firstName, lastName, id)
+  }
+  class "AddColor.php" as Add <<script>> {
+    getRequestInfo()
+    sendResultInfoAsJson(obj)
+    returnWithError(err)
+  }
+  class "SearchColors.php" as Search <<script>> {
+    getRequestInfo()
+    sendResultInfoAsJson(obj)
+    returnWithError(err)
+    returnWithInfo(searchResults)
+  }
+}
+
+package "Logical data model" {
+  class "User\n(Users table)" as User <<entity>> {
+    ID : integer
+    firstName : string
+    lastName : string
+    Login : string
+    Password : string
+  }
+  class "Color\n(Colors table)" as Color <<entity>> {
+    UserID : integer
+    Name : string
+  }
+}
+
+Client ..> Login : POST login, password
+Client ..> Add : POST color, userId
+Client ..> Search : POST search, userId
+Login ..> User : SELECT matching user
+Add ..> Color : INSERT
+Search ..> Color : SELECT names
+User "1" -- "0..*" Color : owns (via UserID)
+
+legend bottom
+  <<module>> and <<script>> group procedural code; they are not declared OO classes.
+  All three PHP scripts require config.php and use its mysqli connection.
+  User-Color is a logical relationship inferred from SQL and browser userId.
+  Database DDL is absent: types are conceptual; FK enforcement is unverified.
+  Only columns referenced by application SQL are shown; no cascade is implied.
+endlegend
+@enduml

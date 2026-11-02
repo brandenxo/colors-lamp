@@ -1,0 +1,46 @@
+@startuml
+!pragma layout smetana
+left to right direction
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 16
+skinparam ArrowColor #374151
+skinparam usecaseBackgroundColor #F3F4F6
+skinparam usecaseBorderColor #374151
+skinparam actorBorderColor #374151
+title COLORS - Use Case Diagram
+
+actor User
+rectangle "COLORS Web Application" {
+  usecase "Log in" as Login
+  usecase "Add color" as Add
+  usecase "Search own colors" as Search
+  usecase "Log out" as Logout
+}
+User -- Login
+User -- Add
+User -- Search
+User -- Logout
+
+note right of Login
+  Supply a username and password.
+  A matching Users record returns
+  the user's ID and name.
+end note
+note right of Add
+  Browser precondition for color actions:
+  user state loaded from the login cookie.
+  Add and search requests send userId.
+  Search filters by name and userId.
+end note
+note right of Logout
+  Clear browser user state, expire
+  the cookie, and return to login.
+end note
+
+legend bottom
+  Login is a separate user goal, not an included step of each color action.
+  The PHP color endpoints do not independently authenticate the supplied userId.
+endlegend
+@enduml

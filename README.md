@@ -61,6 +61,17 @@ For example:
 http://your-server-address/
 ```
 
+## Linting
+
+With Node.js 24 installed, run:
+
+```bash
+npm ci
+npm run lint
+```
+
+GitHub Actions runs HTMLHint, Stylelint, and ESLint on every push and pull request. Node.js is only used for linting; the application runs on Apache, MySQL, and PHP.
+
 ## API
 
 - `Login.php` authenticates users.

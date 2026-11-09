@@ -16,3 +16,8 @@ Thumbs.db
 # Editor files
 .vscode/
 .idea/
+
+node_modules/
+.npm/
+.eslintcache
+.stylelintcache

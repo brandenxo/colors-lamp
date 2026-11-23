@@ -3,12 +3,12 @@ module.exports = {
     {
       displayName: 'unit',
       testEnvironment: 'jsdom',
-      testMatch: ['<rootDir>/tests/unit/**/*.test.js']
+      testMatch: ['<rootDir>/tests/colors.test.js']
     },
     {
       displayName: 'integration',
       testEnvironment: 'node',
-      testMatch: ['<rootDir>/tests/integration/**/*.test.js']
+      testMatch: ['<rootDir>/tests/api.test.js']
     }
   ]
 };

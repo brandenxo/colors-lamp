@@ -4,6 +4,13 @@ import globals from "globals";
 export default [
   js.configs.recommended,
   {
+    files: ["tests/**/*.js", "jest.config.cjs"],
+    languageOptions: {
+      sourceType: "commonjs",
+      globals: { ...globals.node, ...globals.jest, ...globals.browser }
+    }
+  },
+  {
     files: ["public/**/*.js"],
     languageOptions: {
       sourceType: "script",

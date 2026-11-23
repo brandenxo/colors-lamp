@@ -70,7 +70,30 @@ npm ci
 npm run lint
 ```
 
-GitHub Actions runs HTMLHint, Stylelint, and ESLint on every push and pull request. Node.js is only used for linting; the application runs on Apache, MySQL, and PHP.
+GitHub Actions runs HTMLHint, Stylelint, ESLint, and Jest on every push and pull request. Node.js is only used for linting and testing tools; the application runs on Apache, MySQL, and PHP.
+
+## Testing
+
+Run the frontend unit tests with:
+
+```bash
+npm ci
+npm run test:unit
+```
+
+The unit tests load the existing frontend JavaScript and check color request data, response messages, and search-result formatting. XMLHttpRequest is mocked so these tests do not contact the deployed application.
+
+The integration tests send real HTTP requests to the PHP login, add-color, and search endpoints. They check JSON responses, invalid login credentials, search results, user-specific results, and saving then retrieving a color.
+
+GitHub Actions creates a disposable MySQL database from `tests/schema.sql` and runs the API on Apache/PHP using `tests/Dockerfile`. The test credentials in `tests/database.php` are only for this temporary database. Production credentials are not used.
+
+To run the integration tests against a separately configured test server with the seeded test database:
+
+```bash
+TEST_API_URL=http://127.0.0.1:8080/api npm run test:integration
+```
+
+With the same environment variable set, `npm test` runs both suites. An unset `TEST_API_URL` fails the integration suite instead of skipping it.
 
 ## API
 
@@ -83,10 +106,6 @@ GitHub Actions runs HTMLHint, Stylelint, and ESLint on every push and pull reque
 This application was created as an educational project for the COLORS LAMP lab.
 
 Database credentials and server-specific configuration are intentionally excluded from this repository. A compatible MySQL database must be configured separately.
-
-## AI Usage
-
-AI tools were used to assist with organizing the existing project for version control and documenting the repository.
 
 ## License
 

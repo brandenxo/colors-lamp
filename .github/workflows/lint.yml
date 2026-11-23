@@ -64,7 +64,7 @@ jobs:
             --add-host host.docker.internal:host-gateway \
             --mount "type=bind,source=$GITHUB_WORKSPACE,target=/var/www/html,readonly" \
             colors-test-api
-          curl --fail --retry 30 --retry-delay 1 --retry-connrefused http://127.0.0.1:8080/public/index.html
+          curl --fail --retry-all-errors --retry 30 --retry-delay 1 --retry-connrefused http://127.0.0.1:8080/public/index.html
       - name: Run unit and integration tests
         run: npm test -- --ci
         env:

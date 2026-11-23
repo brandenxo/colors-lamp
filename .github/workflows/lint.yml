@@ -1,4 +1,4 @@
-name: Lint
+name: Lint and Tests
 
 on:
   push:
@@ -26,3 +26,49 @@ jobs:
         run: npm run lint:css
       - name: Lint JavaScript
         run: npm run lint:js
+
+  tests:
+    name: Jest unit and PHP API integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root_test_password
+          MYSQL_DATABASE: colors_test
+          MYSQL_USER: colors_test
+          MYSQL_PASSWORD: test_password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot_test_password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install testing tools
+        run: npm ci
+      - name: Seed the test database
+        run: docker exec -i "${{ job.services.mysql.id }}" mysql -uroot -proot_test_password < tests/schema.sql
+      - name: Start Apache and PHP
+        run: |
+          cp tests/database.php api/config.php
+          docker build -t colors-test-api tests
+          docker run -d --name colors-api -p 8080:80 \
+            --add-host host.docker.internal:host-gateway \
+            --mount "type=bind,source=$GITHUB_WORKSPACE,target=/var/www/html,readonly" \
+            colors-test-api
+          curl --fail --retry 30 --retry-delay 1 --retry-connrefused http://127.0.0.1:8080/public/index.html
+      - name: Run unit and integration tests
+        run: npm test -- --ci
+        env:
+          TEST_API_URL: http://127.0.0.1:8080/api
+      - name: Show Apache logs on failure
+        if: failure()
+        run: docker logs colors-api
